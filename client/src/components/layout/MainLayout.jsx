@@ -1,20 +1,26 @@
-// src/App.jsx
+// src/components/layout/MainLayout.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout';
-import Archive from './components/Archive';
+import { Box } from '@mui/material';
+import Sidebar from './Sidebar';
 
-function App() {
+const MainLayout = ({ children }) => {
     return (
-        <Router>
-            <MainLayout>
-                <Routes>
-                    <Route path="/archive" element={<Archive />} />
-                    {/* Другие маршруты */}
-                </Routes>
-            </MainLayout>
-        </Router>
+        <Box sx={{ display: 'flex' }}>
+            <Sidebar />
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    bgcolor: '#121212',
+                    minHeight: '100vh',
+                    ml: '280px',
+                }}
+            >
+                {children}
+            </Box>
+        </Box>
     );
-}
+};
 
-export default App;
+export default MainLayout;

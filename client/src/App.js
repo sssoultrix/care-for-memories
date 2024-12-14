@@ -10,7 +10,6 @@ function App() {
       <MainLayout>
         <Routes>
           <Route path="/archive" element={<Archive />} />
-          {/* Другие маршруты */}
         </Routes>
       </MainLayout>
     </Router>
