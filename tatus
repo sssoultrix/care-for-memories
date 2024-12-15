@@ -1,0 +1,29 @@
+[33mcommit eaa8ed3b4518c91da7176564eb468cac280bdb46[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Soulyrix <alesha.semenov.2006god3fev@mail.ru>
+Date:   Sun Dec 15 03:09:59 2024 +0300
+
+    Initial commit: Archive component with CRUD operations
+
+[33mcommit f264c4c1944f3208411258c4850c629facb42ddf[m
+Author: Soulyrix <alesha.semenov.2006god3fev@mail.ru>
+Date:   Sun Dec 15 02:46:12 2024 +0300
+
+    Initial commit: Archive component with CRUD operations
+
+[33mcommit ee044951d9f5e61fb7871fde17fa529263984122[m
+Author: Soulyrix <alesha.semenov.2006god3fev@mail.ru>
+Date:   Sat Dec 14 21:58:26 2024 +0300
+
+    Add MainLayout and Archive components
+
+[33mcommit 014497faffbfc346903916b8662c19d4bca41f51[m
+Author: Soulyrix <alesha.semenov.2006god3fev@mail.ru>
+Date:   Sat Dec 14 21:51:25 2024 +0300
+
+    Initial commit
+
+[33mcommit 4e2be6391ed8b2141e915b269667bdb0af42e055[m
+Author: Soulyrix <alesha.semenov.2006god3fev@mail.ru>
+Date:   Sat Dec 14 17:13:36 2024 +0300
+
+    Initial project setup
