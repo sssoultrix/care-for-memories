@@ -61,6 +61,16 @@ const textFieldStyle = {
     },
 };
 
+// Функция для безопасного форматирования даты
+const formatDate = (date) => {
+    if (!date) return '';
+    try {
+        return format(new Date(date), 'dd.MM.yyyy');
+    } catch (error) {
+        return '';
+    }
+};
+
 // Компонент диалогового окна для добавления/редактирования записи
 const RecordDialog = ({ open, onClose, record, setRecord, onSave, title }) => {
     const initialRecord = record || {
@@ -214,22 +224,38 @@ const Archive = () => {
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase());
 
-            const deathDate = new Date(record.deathDate);
-            const matchesDateRange = (!filterDateStart || deathDate >= filterDateStart) &&
-                (!filterDateEnd || deathDate <= filterDateEnd);
+            let matchesDateRange = true;
+            if (filterDateStart || filterDateEnd) {
+                try {
+                    const deathDate = record.deathDate ? new Date(record.deathDate) : null;
+                    matchesDateRange = (!filterDateStart || !deathDate || deathDate >= filterDateStart) &&
+                        (!filterDateEnd || !deathDate || deathDate <= filterDateEnd);
+                } catch (error) {
+                    matchesDateRange = false;
+                }
+            }
 
             return matchesSearch && matchesDateRange;
         })
         .sort((a, b) => {
             const isAsc = order === 'asc';
             if (orderBy === 'deathDate' || orderBy === 'birthDate') {
-                return isAsc ?
-                    new Date(a[orderBy]) - new Date(b[orderBy]) :
-                    new Date(b[orderBy]) - new Date(a[orderBy]);
+                try {
+                    const dateA = a[orderBy] ? new Date(a[orderBy]) : null;
+                    const dateB = b[orderBy] ? new Date(b[orderBy]) : null;
+
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return isAsc ? 1 : -1;
+                    if (!dateB) return isAsc ? -1 : 1;
+
+                    return isAsc ? dateA - dateB : dateB - dateA;
+                } catch (error) {
+                    return 0;
+                }
             }
             return isAsc ?
-                a[orderBy].localeCompare(b[orderBy]) :
-                b[orderBy].localeCompare(a[orderBy]);
+                (a[orderBy] || '').localeCompare(b[orderBy] || '') :
+                (b[orderBy] || '').localeCompare(a[orderBy] || '');
         });
 
     // Обработчики страницы
@@ -272,13 +298,13 @@ const Archive = () => {
     // Экспорт в Excel
     const handleExport = () => {
         const ws = XLSX.utils.json_to_sheet(filteredData.map(record => ({
-            'ФИО': record.name,
-            'Дата рождения': record.birthDate ? format(new Date(record.birthDate), 'dd.MM.yyyy') : '',
-            'Дата смерти': record.deathDate ? format(new Date(record.deathDate), 'dd.MM.yyyy') : '',
-            'Место захоронения': record.burialLocation,
-            'Номер захоронения': record.burialNumber,
-            'Ответственное лицо': record.responsible,
-            'Дополнительная информация': record.additionalInfo
+            'ФИО': record.name || '',
+            'Дата рождения': formatDate(record.birthDate),
+            'Дата смерти': formatDate(record.deathDate),
+            'Место захоронения': record.burialLocation || '',
+            'Номер захоронения': record.burialNumber || '',
+            'Ответственное лицо': record.responsible || '',
+            'Дополнительная информация': record.additionalInfo || ''
         })));
 
         const wb = XLSX.utils.book_new();
@@ -461,10 +487,10 @@ const Archive = () => {
                                 <TableRow key={record.id}>
                                     <TableCell sx={{ color: '#FFFFFF' }}>{record.name}</TableCell>
                                     <TableCell sx={{ color: '#FFFFFF' }}>
-                                        {record.birthDate ? format(new Date(record.birthDate), 'dd.MM.yyyy') : ''}
+                                        {formatDate(record.birthDate)}
                                     </TableCell>
                                     <TableCell sx={{ color: '#FFFFFF' }}>
-                                        {record.deathDate ? format(new Date(record.deathDate), 'dd.MM.yyyy') : ''}
+                                        {formatDate(record.deathDate)}
                                     </TableCell>
                                     <TableCell sx={{ color: '#FFFFFF' }}>{record.burialLocation}</TableCell>
                                     <TableCell sx={{ color: '#FFFFFF' }}>{record.burialNumber}</TableCell>
