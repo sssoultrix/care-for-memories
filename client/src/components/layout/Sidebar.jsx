@@ -1,451 +1,130 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
     Box,
+    Typography,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Typography,
-    Divider,
-    Paper,
-    Collapse,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Button,
-    IconButton,
-    DialogContentText,
-    TextField
+    IconButton // Добавлен импорт
 } from '@mui/material';
 import {
-    AccountBalance as CemeteryIcon,
     Archive as ArchiveIcon,
     Settings as SettingsIcon,
-    ExitToApp as LogoutIcon,
-    ExpandMore as ExpandMoreIcon,
-    ExpandLess as ExpandLessIcon,
+    Logout as LogoutIcon,
+    LocationOn as LocationIcon,
     Add as AddIcon,
-    Place as PlaceIcon,
     Delete as DeleteIcon
 } from '@mui/icons-material';
+import CemeteryDialog from './CemeteryDialog';
 
 const Sidebar = () => {
-    const [openCemeteries, setOpenCemeteries] = useState(false);
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedCemetery, setSelectedCemetery] = useState(null);
-    const [cemeteryList, setCemeteryList] = useState([
-        { name: "Кладбище 1", id: 1 },
-        { name: "Кладбище 2", id: 2 },
-    ]);
-    const [openAddDialog, setOpenAddDialog] = useState(false);
-    const [newCemeteryName, setNewCemeteryName] = useState('');
+    const [openDialog, setOpenDialog] = useState(false); // Добавляем состояние для диалога
+    const [cemeteries, setCemeteries] = useState([]); // Состояние для списка кладбищ
 
-    const handleCemeteriesClick = () => {
-        setOpenCemeteries(!openCemeteries);
-    };
-
-    const handleDeleteClick = (cemetery, event) => {
-        event.stopPropagation();
-        setSelectedCemetery(cemetery);
-        setDeleteDialogOpen(true);
-    };
-
-    const handleDeleteConfirm = () => {
-        if (selectedCemetery) {
-            setCemeteryList(prevList =>
-                prevList.filter(cemetery => cemetery.id !== selectedCemetery.id)
-            );
-            console.log(`Кладбище "${selectedCemetery.name}" удалено`);
-        }
-        setDeleteDialogOpen(false);
-        setSelectedCemetery(null);
-    };
-
-    const handleAddClick = () => {
-        setOpenAddDialog(true);
-    };
-
-    const handleAddConfirm = () => {
-        if (newCemeteryName.trim()) {
-            const newCemetery = {
-                id: Date.now(),
-                name: newCemeteryName.trim()
-            };
-
-            setCemeteryList(prevList => [...prevList, newCemetery]);
-            setNewCemeteryName('');
-            setOpenAddDialog(false);
-        }
+    // Обработчик сохранения нового кладбища
+    const handleSaveCemetery = (cemetery) => {
+        setCemeteries([...cemeteries, cemetery]);
+        // Здесь можно добавить логику сохранения в базу данных
+        console.log('New cemetery:', cemetery);
     };
 
     return (
-        <>
-            <Paper
-                elevation={0}
-                sx={{
-                    width: 280,
-                    height: '100vh',
-                    position: 'fixed',
-                    left: 0,
-                    top: 0,
-                    bgcolor: '#0A0A0A',
-                    borderRight: '1px solid',
-                    borderColor: 'rgba(255,255,255,0.05)',
-                    color: 'white',
-                    overflowY: 'auto'
-                }}
-            >
-                {/* Шапка */}
-                <Box
+        <Box sx={{ width: 240, bgcolor: '#1A1A1A', height: '100vh', color: '#FFFFFF' }}>
+            <Box sx={{ p: 2 }}>
+                <Typography variant="h6">Care for Memories</Typography>
+            </Box>
+
+            <Box>
+                <ListItem>
+                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                        <LocationIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Кладбища" />
+                </ListItem>
+
+                <Button
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpenDialog(true)} // Открываем диалог при клике
                     sx={{
-                        p: 3,
-                        background: 'linear-gradient(45deg, #111111 30%, #1A1A1A 90%)',
-                        boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.3)'
+                        color: '#FFFFFF',
+                        width: '100%',
+                        justifyContent: 'flex-start',
+                        pl: 4,
+                        '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        },
                     }}
                 >
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 'bold',
-                            letterSpacing: '0.5px',
-                            textAlign: 'center',
-                            color: '#FFFFFF'
-                        }}
-                    >
-                        Care for Memories
-                    </Typography>
-                </Box>
+                    Добавить кладбище
+                </Button>
 
-                {/* Основное меню */}
-                <List sx={{ px: 2, mt: 4 }}>
-                    {/* Кладбища с выпадающим списком */}
+                {/* Список существующих кладбищ */}
+                {cemeteries.map((cemetery, index) => (
                     <ListItem
-                        button
-                        onClick={handleCemeteriesClick}
+                        key={index}
                         sx={{
-                            py: 2,
-                            borderRadius: 2,
-                            mb: openCemeteries ? 1 : 2,
+                            pl: 4,
                             '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.03)',
-                                '& .MuiListItemIcon-root': {
-                                    color: '#4A9EFF',
-                                },
-                            }
+                                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                            },
                         }}
-                    >
-                        <ListItemIcon sx={{ color: '#666666' }}>
-                            <CemeteryIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Кладбища"
-                            primaryTypographyProps={{
-                                fontSize: '0.95rem',
-                                fontWeight: 500,
-                                color: '#CCCCCC'
-                            }}
-                        />
-                        {openCemeteries ? <ExpandLessIcon sx={{ color: '#666666' }} /> : <ExpandMoreIcon sx={{ color: '#666666' }} />}
-                    </ListItem>
-
-                    {/* Выпадающий список кладбищ */}
-                    <Collapse in={openCemeteries} timeout="auto">
-                        <List component="div" disablePadding>
-                            <ListItem
-                                button
-                                onClick={handleAddClick}
-                                sx={{
-                                    pl: 4,
-                                    py: 1.5,
-                                    borderRadius: 2,
-                                    mb: 1,
-                                    bgcolor: 'rgba(74, 158, 255, 0.1)',
-                                    '&:hover': {
-                                        bgcolor: 'rgba(74, 158, 255, 0.2)',
-                                    }
+                        secondaryAction={
+                            <IconButton
+                                edge="end"
+                                sx={{ color: '#FF4A4A' }}
+                                onClick={() => {
+                                    const newCemeteries = cemeteries.filter((_, i) => i !== index);
+                                    setCemeteries(newCemeteries);
                                 }}
                             >
-                                <ListItemIcon sx={{ color: '#4A9EFF', minWidth: '35px' }}>
-                                    <AddIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="Добавить кладбище"
-                                    primaryTypographyProps={{
-                                        fontSize: '0.9rem',
-                                        color: '#4A9EFF'
-                                    }}
-                                />
-                            </ListItem>
-
-                            {cemeteryList.map((cemetery) => (
-                                <ListItem
-                                    button
-                                    key={cemetery.id}
-                                    sx={{
-                                        pl: 4,
-                                        py: 1.5,
-                                        borderRadius: 2,
-                                        mb: 1,
-                                        '&:hover': {
-                                            bgcolor: 'rgba(255, 255, 255, 0.03)',
-                                        },
-                                        display: 'flex',
-                                        justifyContent: 'space-between'
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-                                        <ListItemIcon sx={{ color: '#666666', minWidth: '35px' }}>
-                                            <PlaceIcon />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={cemetery.name}
-                                            primaryTypographyProps={{
-                                                fontSize: '0.9rem',
-                                                color: '#CCCCCC'
-                                            }}
-                                        />
-                                    </Box>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => handleDeleteClick(cemetery, e)}
-                                        sx={{
-                                            color: '#666666',
-                                            '&:hover': {
-                                                color: '#ff4444',
-                                                bgcolor: 'rgba(255, 68, 68, 0.1)'
-                                            }
-                                        }}
-                                    >
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Collapse>
-
-                    {/* Архив */}
-                    <ListItem
-                        button
-                        component={Link}
-                        to="/archive"
-                        sx={{
-                            py: 2,
-                            borderRadius: 2,
-                            mb: 2,
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.03)',
-                                '& .MuiListItemIcon-root': {
-                                    color: '#4A9EFF',
-                                },
-                            }
-                        }}
+                                <DeleteIcon />
+                            </IconButton>
+                        }
                     >
-                        <ListItemIcon sx={{ color: '#666666' }}>
+                        <ListItemIcon sx={{ color: '#FFFFFF', minWidth: 35 }}>
+                            <LocationIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary={cemetery.name}
+                            secondary={`${cemetery.coordinates[0].toFixed(4)}, ${cemetery.coordinates[1].toFixed(4)}`}
+                            secondaryTypographyProps={{ sx: { color: '#CCCCCC' } }}
+                        />
+                    </ListItem>
+                ))}
+
+                <List>
+                    <ListItem button>
+                        <ListItemIcon sx={{ color: '#FFFFFF' }}>
                             <ArchiveIcon />
                         </ListItemIcon>
-                        <ListItemText
-                            primary="Архив"
-                            primaryTypographyProps={{
-                                fontSize: '0.95rem',
-                                fontWeight: 500,
-                                color: '#CCCCCC'
-                            }}
-                        />
+                        <ListItemText primary="Архив" />
                     </ListItem>
 
-                    {/* Настройки */}
-                    <ListItem
-                        button
-                        sx={{
-                            py: 2,
-                            borderRadius: 2,
-                            mb: 2,
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.03)',
-                                '& .MuiListItemIcon-root': {
-                                    color: '#4A9EFF',
-                                },
-                            }
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#666666' }}>
+                    <ListItem button>
+                        <ListItemIcon sx={{ color: '#FFFFFF' }}>
                             <SettingsIcon />
                         </ListItemIcon>
-                        <ListItemText
-                            primary="Настройки"
-                            primaryTypographyProps={{
-                                fontSize: '0.95rem',
-                                fontWeight: 500,
-                                color: '#CCCCCC'
-                            }}
-                        />
+                        <ListItemText primary="Настройки" />
                     </ListItem>
-                </List>
 
-                {/* Разделитель */}
-                <Divider sx={{ mx: 2, bgcolor: 'rgba(255, 255, 255, 0.05)', my: 2 }} />
-
-                {/* Нижнее меню */}
-                <List sx={{ px: 2, mt: 'auto', mb: 2 }}>
-                    <ListItem
-                        button
-                        sx={{
-                            py: 2,
-                            borderRadius: 2,
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.03)',
-                                '& .MuiListItemIcon-root': {
-                                    color: '#4A9EFF',
-                                },
-                            }
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#666666' }}>
+                    <ListItem button>
+                        <ListItemIcon sx={{ color: '#FFFFFF' }}>
                             <LogoutIcon />
                         </ListItemIcon>
-                        <ListItemText
-                            primary="Выйти"
-                            primaryTypographyProps={{
-                                fontSize: '0.95rem',
-                                fontWeight: 500,
-                                color: '#CCCCCC'
-                            }}
-                        />
+                        <ListItemText primary="Выйти" />
                     </ListItem>
                 </List>
-            </Paper>
+            </Box>
 
-            {/* Диалог подтверждения удаления */}
-            <Dialog
-                open={deleteDialogOpen}
-                onClose={() => setDeleteDialogOpen(false)}
-                PaperProps={{
-                    sx: {
-                        bgcolor: '#1A1A1A',
-                        color: '#CCCCCC',
-                        minWidth: '320px'
-                    }
-                }}
-            >
-                <DialogTitle sx={{ color: '#FFFFFF' }}>
-                    Подтверждение удаления
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText sx={{ color: '#CCCCCC' }}>
-                        Вы действительно хотите удалить кладбище "{selectedCemetery?.name}"?
-                        Это действие нельзя будет отменить.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button
-                        onClick={() => setDeleteDialogOpen(false)}
-                        sx={{
-                            color: '#CCCCCC',
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.05)'
-                            }
-                        }}
-                    >
-                        Отмена
-                    </Button>
-                    <Button
-                        onClick={handleDeleteConfirm}
-                        sx={{
-                            bgcolor: 'rgba(255, 68, 68, 0.1)',
-                            color: '#ff4444',
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 68, 68, 0.2)'
-                            }
-                        }}
-                    >
-                        Удалить
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Диалог добавления нового кладбища */}
-            <Dialog
-                open={openAddDialog}
-                onClose={() => setOpenAddDialog(false)}
-                PaperProps={{
-                    sx: {
-                        bgcolor: '#1A1A1A',
-                        color: '#CCCCCC',
-                        minWidth: '320px'
-                    }
-                }}
-            >
-                <DialogTitle sx={{ color: '#FFFFFF' }}>
-                    Добавление нового кладбища
-                </DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Название кладбища"
-                        type="text"
-                        fullWidth
-                        value={newCemeteryName}
-                        onChange={(e) => setNewCemeteryName(e.target.value)}
-                        sx={{
-                            mt: 2,
-                            '& .MuiOutlinedInput-root': {
-                                color: '#FFFFFF',
-                                '& fieldset': {
-                                    borderColor: 'rgba(255, 255, 255, 0.23)',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#4A9EFF',
-                                },
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: '#CCCCCC',
-                                '&.Mui-focused': {
-                                    color: '#4A9EFF',
-                                },
-                            },
-                        }}
-                    />
-                </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button
-                        onClick={() => {
-                            setOpenAddDialog(false);
-                            setNewCemeteryName('');
-                        }}
-                        sx={{
-                            color: '#CCCCCC',
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 255, 255, 0.05)'
-                            }
-                        }}
-                    >
-                        Отмена
-                    </Button>
-                    <Button
-                        onClick={handleAddConfirm}
-                        disabled={!newCemeteryName.trim()}
-                        sx={{
-                            bgcolor: 'rgba(74, 158, 255, 0.1)',
-                            color: '#4A9EFF',
-                            '&:hover': {
-                                bgcolor: 'rgba(74, 158, 255, 0.2)'
-                            },
-                            '&.Mui-disabled': {
-                                color: 'rgba(74, 158, 255, 0.5)',
-                            }
-                        }}
-                    >
-                        Добавить
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
+            {/* Диалог добавления кладбища */}
+            <CemeteryDialog
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                onSave={handleSaveCemetery}
+            />
+        </Box>
     );
 };
 
